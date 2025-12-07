@@ -2,6 +2,12 @@
 
 This GitHub Action exports secrets to a CSV file.
 
+## Disclaimer
+
+This action is not officially supported by GitHub. It is a personal project that I created to help me export secrets from GitHub to a CSV file which contains possibly sensitive information. Make sure to store the CSV file in a secure location and delete it when no longer needed. 
+
+*Use this action at your own risk.*
+
 ## Inputs
 
 - `secrets-prefix` (required): The prefix for the secrets ending with an underscore. For example, `SECRETS_`.
@@ -20,48 +26,60 @@ The workflow will export the secrets to a CSV file and upload it as an artifact.
 > Note: Don't forget to add the organization secrets to the repository where the action is used before running the action.
 
 ```yaml
-steps:
-  - name: Export Secrets to CSV (org)
-    uses: martins-vds/export-secrets-action@v1
-    env:
-      SECRETS_ORG_SECRET1: ${{ secrets.ORG_SECRET1 }}
-      SECRETS_ORG_SECRET2: ${{ secrets.ORG_SECRET2 }}
-    with:
-      repository: ${{ github.repository }}
-      secrets-prefix: 'SECRETS_'
-      secrets-type: 'org'
+jobs:
+  export-secrets-org:
+    name: Export Secrets (org)
+    runs-on: windows-latest
+    steps:
+      - name: Export Secrets to CSV (org)
+        uses: martins-vds/export-secrets-action@v1
+        env:
+          SECRETS_ORG_SECRET1: ${{ secrets.ORG_SECRET1 }}
+          SECRETS_ORG_SECRET2: ${{ secrets.ORG_SECRET2 }}
+        with:
+          repository: ${{ github.repository }}
+          secrets-prefix: 'SECRETS_'
+          secrets-type: 'org'
 ```
 
 ### Example 2: Export Repository Secrets
 
 ```yaml
-steps:
-  - name: Export Secrets to CSV (repo)
-    uses: martins-vds/export-secrets-action@v1
-    env:
-      SECRETS_REPO_SECRET1: ${{ secrets.REPO_SECRET1 }}
-      SECRETS_REPO_SECRET2: ${{ secrets.REPO_SECRET2 }}    
-    with:
-      repository: ${{ github.repository }}
-      secrets-prefix: 'SECRETS_'
-      secrets-type: 'repo'
+jobs:
+  export-secrets-repo:
+    name: Export Secrets (repo)
+    runs-on: windows-latest
+    steps:
+      - name: Export Secrets to CSV (repo)
+        uses: martins-vds/export-secrets-action@v1
+        env:
+          SECRETS_REPO_SECRET1: ${{ secrets.REPO_SECRET1 }}
+          SECRETS_REPO_SECRET2: ${{ secrets.REPO_SECRET2 }}    
+        with:
+          repository: ${{ github.repository }}
+          secrets-prefix: 'SECRETS_'
+          secrets-type: 'repo'
 ```
 
 ### Example 3: Export Environment Secrets
 
 ```yaml
-steps:
-  - name: Export Secrets to CSV (env)
-    uses: martins-vds/export-secrets-action@v1
-    environment: 'env-name'
-    env:
-      SECRETS_ENVIRONMENT_SECRET1: ${{ secrets.ENVIRONMENT_SECRET1 }}
-      SECRETS_ENVIRONMENT_SECRET2: ${{ secrets.ENVIRONMENT_SECRET2 }}
-    with:
-      repository: ${{ github.repository }}
-      secrets-prefix: 'SECRETS_'
-      secrets-type: 'env'
-      environment-name: 'env-name'
+jobs:
+    export-secrets-env:
+      name: Export Secrets (env)
+      runs-on: windows-latest
+      environment: 'production'
+      steps:
+        - name: Export Secrets to CSV (env)
+          uses: martins-vds/export-secrets-action@v1    
+          env:
+            SECRETS_ENVIRONMENT_SECRET1: ${{ secrets.ENVIRONMENT_SECRET1 }}
+            SECRETS_ENVIRONMENT_SECRET2: ${{ secrets.ENVIRONMENT_SECRET2 }}
+          with:
+            repository: ${{ github.repository }}
+            secrets-prefix: 'SECRETS_'
+            secrets-type: 'env'
+            environment-name: 'production'
 ```
 
 ### Example 4: Complete Workflow
@@ -76,39 +94,47 @@ env:
   PREFIX_SECRETS: 'SECRETS_'
 
 jobs:
-    export-secrets:
-        name: Export Secrets
-        runs-on: windows-latest  
-        steps:
-          - name: Export Secrets to CSV (org)
-            uses: martins-vds/export-secrets-action@v1
-            env:
-                '${{ env.PREFIX_SECRETS }}ORG_SECRET1': ${{ secrets.ORG_SECRET1 }}
-                '${{ env.PREFIX_SECRETS }}ORG_SECRET2': ${{ secrets.ORG_SECRET2 }}
-            with:
-                repository: ${{ github.repository }}
-                secrets-prefix: ${{ env.PREFIX_SECRETS }}
-                secrets-type: 'org'
-          - name: Export Secrets to CSV (repo)
-            uses: martins-vds/export-secrets-action@v1
-            env:
-                '${{ env.PREFIX_SECRETS }}REPO_SECRET1': ${{ secrets.REPO_SECRET1 }}
-                '${{ env.PREFIX_SECRETS }}REPO_SECRET2': ${{ secrets.REPO_SECRET2 }}    
-            with:
-                repository: ${{ github.repository }}
-                secrets-prefix: ${{ env.PREFIX_SECRETS }}
-                secrets-type: 'repo'
-          - name: Export Secrets to CSV (env)
-            uses: martins-vds/export-secrets-action@v1
-            environment: 'env-name'
-            env:
-                '${{ env.PREFIX_SECRETS }}ENVIRONMENT_SECRET1': ${{ secrets.ENVIRONMENT_SECRET1 }}
-                '${{ env.PREFIX_SECRETS }}ENVIRONMENT_SECRET2': ${{ secrets.ENVIRONMENT_SECRET2 }}
-            with:
-                repository: ${{ github.repository }}
-                secrets-prefix: ${{ env.PREFIX_SECRETS }}
-                secrets-type: 'env'
-                environment-name: 'env-name'
+    export-secrets-org:
+      name: Export Secrets (org)
+      runs-on: windows-latest
+      steps:
+        - name: Export Secrets to CSV (org)
+          uses: martins-vds/export-secrets-action@v1
+          env:
+            SECRETS_ORG_SECRET1: ${{ secrets.ORG_SECRET1 }}
+            SECRETS_ORG_SECRET2: ${{ secrets.ORG_SECRET2 }}
+          with:
+            repository: ${{ github.repository }}
+            secrets-prefix: 'SECRETS_'
+            secrets-type: 'org'
+    export-secrets-repo:
+      name: Export Secrets (repo)
+      runs-on: windows-latest
+      steps:
+        - name: Export Secrets to CSV (repo)
+          uses: martins-vds/export-secrets-action@v1
+          env:
+            SECRETS_REPO_SECRET1: ${{ secrets.REPO_SECRET1 }}
+            SECRETS_REPO_SECRET2: ${{ secrets.REPO_SECRET2 }}    
+          with:
+            repository: ${{ github.repository }}
+            secrets-prefix: 'SECRETS_'
+            secrets-type: 'repo'
+    export-secrets-env:
+      name: Export Secrets (env)
+      runs-on: windows-latest
+      environment: 'production'
+      steps:
+        - name: Export Secrets to CSV (env)
+          uses: martins-vds/export-secrets-action@v1    
+          env:
+            SECRETS_ENVIRONMENT_SECRET1: ${{ secrets.ENVIRONMENT_SECRET1 }}
+            SECRETS_ENVIRONMENT_SECRET2: ${{ secrets.ENVIRONMENT_SECRET2 }}
+          with:
+            repository: ${{ github.repository }}
+            secrets-prefix: 'SECRETS_'
+            secrets-type: 'env'
+            environment-name: 'production'
             
 ```
 
